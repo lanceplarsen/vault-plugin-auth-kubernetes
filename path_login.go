@@ -103,6 +103,12 @@ func (b *kubeAuthBackend) pathLogin() framework.OperationFunc {
 			return nil, err
 		}
 
+		//Add the namespace to allow us to map identity
+		var groupAliases []*logical.Alias
+		groupAliases = append(groupAliases, &logical.Alias{
+			Name: serviceAccount.namespace(),
+		})
+
 		resp := &logical.Response{
 			Auth: &logical.Auth{
 				NumUses: role.NumUses,
@@ -110,6 +116,7 @@ func (b *kubeAuthBackend) pathLogin() framework.OperationFunc {
 				Alias: &logical.Alias{
 					Name: serviceAccount.uid(),
 				},
+				GroupAliases: groupAliases,
 				InternalData: map[string]interface{}{
 					"role": roleName,
 				},
